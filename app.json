@@ -3,15 +3,31 @@
     "name": "Nanmii Asset",
     "slug": "nanmii-mobile-app",
     "version": "1.0.0",
+    "sdkVersion": "50.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "entryPoint": "./index.js",
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true,
+            "gradle": {
+              "sourceCompatibility": "11",
+              "targetCompatibility": "11"
+            }
+          }
+        }
+      ]
+    ],
     "ios": {
       "supportsTabletMode": true,
       "bundleIdentifier": "com.nanmii.asset"
     },
     "android": {
-      "package": "com.nanmii.asset"
+      "package": "com.nanmii.asset",
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro"
