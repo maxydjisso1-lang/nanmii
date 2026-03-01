@@ -1,18 +1,30 @@
 {
   "expo": {
-    "name": "nanmii-test",
-    "slug": "nanmii-mobile-app",
+    "name": "Nanmii",
+    "slug": "nanmii",
+    "owner": "maxy123",
     "version": "1.0.0",
-    "sdkVersion": "51.0.0",
     "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "nanmii",
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#07050F"
     },
     "android": {
-      "package": "com.nanmii.asset"
+      "package": "com.nanmii.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#07050F"
+      },
+      "permissions": ["INTERNET"]
+    },
+    "ios": {
+      "bundleIdentifier": "com.nanmii.app",
+      "buildNumber": "1"
     },
     "extra": {
       "eas": {

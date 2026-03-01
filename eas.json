@@ -1,9 +1,9 @@
 {
+  "cli": {
+    "version": ">= 5.0.0",
+    "appVersionSource": "local"
+  },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
     "preview": {
       "distribution": "internal",
       "android": {
@@ -11,7 +11,9 @@
       }
     },
     "production": {
-      "distribution": "store"
+      "android": {
+        "buildType": "aab"
+      }
     }
   }
 }
