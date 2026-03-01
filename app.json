@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Nanmii Asset",
+    "name": "nanmii-test",
     "slug": "nanmii-mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,21 +10,8 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTabletMode": true,
-      "bundleIdentifier": "com.nanmii.asset"
-    },
     "android": {
-      "package": "com.nanmii.asset",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
-    "extra": {
-      "eas": {
-        "projectId": "b5e95b60-d027-4603-860d-c92e7c307ea9"
-      }
+      "package": "com.nanmii.asset"
     }
   }
 }
