@@ -4,15 +4,20 @@
     "slug": "nanmii-mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
-      "supportsTabletMode": true,
-      "bundleIdentifier": "com.nanmii.asset"
+      "supportsTabletMode": true
     },
     "android": {
-      "package": "com.nanmii.asset",
-      "versionCode": 1,
-      "compileSdkVersion": 33
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
     },
     "extra": {
       "eas": {
