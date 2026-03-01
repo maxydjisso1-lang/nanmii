@@ -12,6 +12,11 @@
     },
     "android": {
       "package": "com.nanmii.asset"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b5e95b60-d027-4603-860d-c92e7c307ea9"
+      }
     }
   }
 }
