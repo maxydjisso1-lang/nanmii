@@ -1,0 +1,79 @@
+name: EAS Build - Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Build profile (preview or production)'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔑 Setup EAS CLI
+        run: npm install -g eas-cli
+
+      - name: 🔐 Authenticate with Expo
+        run: eas login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🏗️ Build Android (Preview APK)
+        id: build
+        run: npx eas build --platform android --profile ${{ github.event.inputs.profile || 'preview' }} --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EAS_BUILD_PROFILE: ${{ github.event.inputs.profile || 'preview' }}
+
+      - name: 📱 Get Build Status
+        run: npx eas build:list --limit 1 --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 💬 Comment PR with Build Link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ EAS Build started! Check the build status at https://expo.dev/accounts/maxy123/projects/nanmii-mobile-app/builds'
+            })
+
+      - name: 📤 Upload Build Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs
+          path: logs/
+          retention-days: 7

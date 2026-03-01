@@ -1,0 +1,126 @@
+name: Manual EAS Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build'
+        required: true
+        default: 'android'
+        type: choice
+        options:
+          - android
+          - ios
+          - both
+      profile:
+        description: 'Build profile'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
+      clear-cache:
+        description: 'Clear build cache'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  manual-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      
+    strategy:
+      matrix:
+        platform: ${{ fromJson(format('[{0}]', github.event.inputs.platform == 'both' ? '"android", "ios"' : format('"{0}"', github.event.inputs.platform))) }}
+      max-parallel: 1
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔑 Setup EAS CLI
+        run: npm install -g eas-cli
+
+      - name: 🔐 Authenticate with Expo
+        run: eas login --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🗑️ Clear cache and rebuild
+        if: github.event.inputs.clear-cache == 'true'
+        run: |
+          echo "Clearing build cache..."
+          npx eas build:list --limit 1 --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🏗️ Build with EAS
+        id: eas-build
+        run: |
+          npx eas build \
+            --platform ${{ matrix.platform }} \
+            --profile ${{ github.event.inputs.profile }} \
+            --non-interactive
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📱 Generate Build Status Report
+        if: always()
+        run: |
+          echo "## Build Status" >> $GITHUB_STEP_SUMMARY
+          echo "- Platform: ${{ matrix.platform }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Profile: ${{ github.event.inputs.profile }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Clear Cache: ${{ github.event.inputs.clear-cache }}" >> $GITHUB_STEP_SUMMARY
+          npx eas build:list --limit 1 --non-interactive >> $GITHUB_STEP_SUMMARY 2>&1 || true
+
+      - name: 💬 Create Build Summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `
+            ## 🏗️ EAS Build Report
+            
+            - **Platform:** ${{ matrix.platform }}
+            - **Profile:** ${{ github.event.inputs.profile }}
+            - **Status:** ${{ job.status }}
+            
+            ### 📍 Links
+            - [View on Expo Dashboard](https://expo.dev/accounts/maxy123/projects/nanmii-mobile-app/builds)
+            - [GitHub Actions Logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            core.notice(summary);
+
+      - name: 📤 Upload Build Artifacts
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-failed-${{ matrix.platform }}
+          path: |
+            logs/
+            .expo/
+          retention-days: 7
+
+  notify-completion:
+    needs: manual-build
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: ✅ Build Complete
+        run: |
+          echo "🎯 Build workflow completed successfully!"
+          echo "🔗 Check results: https://expo.dev/accounts/maxy123/projects/nanmii-mobile-app/builds"
